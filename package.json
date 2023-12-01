@@ -1,0 +1,24 @@
+{
+  "name": "xlsx-comparator",
+  "version": "1.0.0",
+  "description": "Парсер для xlsx",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "node index.js",
+    "lint": "eslint"
+  },
+  "author": "MiggRbbid",
+  "license": "ISC",
+  "dependencies": {
+    "ci": "^2.3.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.54.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.0"
+  }
+}
+
