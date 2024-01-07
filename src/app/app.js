@@ -1,50 +1,54 @@
-import XLSX from 'xlsx';
-import fs from 'fs';
-import settingsApp from './settingApp.js';
-import parsXLSX from './parser.js';
-import matchingItems from './matcher.js';
+import parserXLSX from './parser.js';
+import watcher from './view.js';
 
-const writeFile = (name, data, resultPath) => {
-  const jsonData = JSON.stringify(data, null, 2);
-  const filePath = `./${resultPath}${name}.json`;
+export default async () => {
+  const state = {
+    uiState: {
+      tabs: null,
+      activeTab: null,
+    },
+    dataState: {
+      firstTab: [],
+      secondTab: [],
+    },
+  };
 
-  fs.writeFileSync(filePath, jsonData, 'utf8');
-  console.log(`-- Данные сохранены в ${filePath} --`);
-};
+  const inputFirst = document.querySelector('input[id="formFile_1"]');
+  const inputSecond = document.querySelector('input[id="formFile_2"]');
+  const parsButton = document.querySelector('button[id="parser"]');
+  const tads = document.querySelector('div[id="tabs"]');
+  const watchedState = watcher(state);
 
-const exportToXLSX = (name, data, resultPath) => {
-  const ws = XLSX.utils.json_to_sheet(data);
+  const handlerParsButton = async () => {
+    console.log('------     handlerParsButton');
+    try {
+      let data1;
+      let data2;
+      if (inputFirst.files.length !== 0) {
+        data1 = await parserXLSX(inputFirst.files[0]);
+        watchedState.dataState.firstTab = data1;
+      }
+      if (inputSecond.files.length !== 0) {
+        data2 = await parserXLSX(inputSecond.files[0]);
+        watchedState.dataState.secondTab = data2;
+      }
+      watchedState.uiState.tabs = 'enable';
+    } catch (error) {
+      console.error('Ошибка при обработке XLSX-файлов:', error.message);
+    }
+  };
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  const handlerTabClick = (event) => {
+    console.log('------     handlerTabClick');
+    const targetId = event.target.id;
+    const tag = event.target.tagName;
+    console.log(event.target);
+    console.log(tag, typeof tag, '/', targetId);
+    if (tag === 'A') {
+      watchedState.uiState.activeTab = targetId;
+    }
+  };
 
-  const filePath = `./${resultPath}${name}.xlsx`;
-  XLSX.writeFile(wb, filePath);
-
-  console.log(`-- Данные экспортированы в ${filePath} --`);
-  console.log(`Строк XLSX в файле ${name} обработано -`, data.length);
-};
-
-export default () => {
-  const {
-    firstPath, secondPath, resultPath, KeyToCheck,
-  } = settingsApp;
-  console.log(firstPath);
-  console.log(secondPath);
-  console.log(resultPath);
-
-  const first = parsXLSX(firstPath);
-  const second = parsXLSX(secondPath);
-
-  writeFile('first', first, resultPath);
-  console.log('Строк XLSX в файле first обработано -', first.length);
-
-  writeFile('second', second, resultPath);
-  console.log('Строк XLSX в файле second обработано -', first.length);
-
-  const result = matchingItems(first, second, KeyToCheck);
-
-  writeFile('result', result, resultPath);
-
-  exportToXLSX('result', result, resultPath);
+  parsButton.addEventListener('click', handlerParsButton);
+  tads.addEventListener('click', handlerTabClick);
 };

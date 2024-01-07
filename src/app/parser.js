@@ -1,25 +1,28 @@
-import XLSX from 'xlsx';
-import fs from 'fs';
+import * as XLSX from 'xlsx';
 
-const parsXLSX = (path) => {
-  const excelData = fs.readFileSync(path);
-  const workbook = XLSX.read(excelData, { type: 'buffer' });
+const parserXLSX = (file) => {
+  const reader = new FileReader();
 
-  const sheetNames = workbook.SheetNames;
+  return new Promise((resolve, reject) => {
+    reader.onload = (e) => {
+      try {
+        const arrayBuffer = e.target.result;
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        resolve(jsonData);
+      } catch (error) {
+        console.error('Ошибка при чтении XLSX-файла:', error.message);
+        reject(error);
+      }
+    };
 
-  let allData = [];
-
-  sheetNames.forEach((sheetName) => {
-    const worksheet = workbook.Sheets[sheetName];
-
-    const columnNames = Object.keys(worksheet).filter((key) => key !== '!ref').map((cell) => worksheet[cell].v);
-
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: columnNames, raw: true });
-
-    allData = allData.concat(jsonData);
+    reader.onerror = () => {
+      reject(new Error('Ошибка чтения файла'));
+    };
+    reader.readAsArrayBuffer(file.slice(0, file.size));
   });
-
-  return allData.slice(1);
 };
 
-export default parsXLSX;
+export default parserXLSX;
