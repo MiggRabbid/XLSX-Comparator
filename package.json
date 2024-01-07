@@ -1,24 +1,41 @@
 {
   "name": "xlsx-comparator",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Парсер для xlsx",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "run": "node index.js",
+    "test": "jest --colors",
+    "build": "webpack --mode=production --output-path=public",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch",
+    "serve": "webpack serve",
     "lint": "eslint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiggRabbid/XLSX-Comparator.git"
   },
   "author": "MiggRbbid",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^5.3.2",
     "ci": "^2.3.0",
+    "sheetjs": "^2.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "eslint": "^8.54.0",
+    "css-loader": "^6.8.1",
+    "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.0"
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^27.6.1",
+    "postcss-loader": "^7.3.4",
+    "sass-loader": "^13.3.3",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }
-
