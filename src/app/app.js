@@ -1,15 +1,54 @@
 import parserXLSX from './parser.js';
 import watcher from './view.js';
+import mergeData from './merger.js';
+
+const getMatchingKeys = (data1, data2) => {
+  const keysData1 = data1.length > 0 ? Object.keys(data1[0]) : [];
+  const keysData2 = data2.length > 0 ? Object.keys(data2[0]) : [];
+  const кeysForComparison = keysData1.filter((value) => keysData2.includes(value));
+  return кeysForComparison;
+};
+
+const selectAndMerge = (watchedState) => {
+  const firstMenu = document.querySelector('.firstMenu');
+  const secondMenu = document.querySelector('.secondMenu');
+  const mergButton = document.querySelector('button[id="merger"]');
+
+  const handlerMenu = (event) => {
+    const dataMenu = event.target.getAttribute('data-menu');
+    const currentValue = event.target.value;
+    if (dataMenu === 'first') {
+      watchedState.uiState.keyForComparison = currentValue;
+    }
+    if (dataMenu === 'second') {
+      watchedState.uiState.keyForAdding = currentValue;
+    }
+  };
+
+  const handlerMergeButton = () => {
+    const { firstData, secondData } = watchedState.dataState;
+    const { keyForComparison, keyForAdding } = watchedState.uiState;
+    const resultData = mergeData(firstData, secondData, keyForComparison, keyForAdding);
+    watchedState.dataState.resultData = resultData;
+  };
+
+  firstMenu.addEventListener('change', handlerMenu);
+  secondMenu.addEventListener('change', handlerMenu);
+  mergButton.addEventListener('click', handlerMergeButton);
+};
 
 export default async () => {
   const state = {
     dataState: {
       firstData: [],
       secondData: [],
+      resultData: [],
     },
     uiState: {
-      menuКeys: [],
-      selectedKey: null,
+      кeysForComparison: [],
+      кeysForAdding: [],
+      keyForComparison: null,
+      keyForAdding: null,
     },
   };
 
@@ -20,21 +59,22 @@ export default async () => {
   const watchedState = watcher(state);
 
   const handlerParsButton = async () => {
-    console.log('------     handlerParsButton');
     try {
       let data1 = state.dataState.firstData;
       let data2 = state.dataState.secondData;
       if (inputFirst.files.length !== 0) {
-        data1 = { firstData: await parserXLSX(inputFirst.files[0]) };
+        data1 = await parserXLSX(inputFirst.files[0]);
       }
       if (inputSecond.files.length !== 0) {
-        data2 = { secondData: await parserXLSX(inputSecond.files[0]) };
+        data2 = await parserXLSX(inputSecond.files[0]);
       }
-      watchedState.dataState = { ...data1, ...data2 };
+      const кeysForCompar = getMatchingKeys(data1, data2);
+      const кeysForAdd = data2.length > 0 ? Object.keys(data2[0]) : [];
 
-      const matchedKeys = state.dataState.secondData[0];
-      watchedState.uiState.menuКeys = matchedKeys;
-      console.log(matchedKeys);
+      watchedState.dataState = { firstData: data1, secondData: data2 };
+      watchedState.uiState.кeysForComparison = кeysForCompar;
+      watchedState.uiState.кeysForAdding = кeysForAdd;
+      selectAndMerge(watchedState);
     } catch (error) {
       console.error('Ошибка при обработке XLSX-файлов:', error.message);
     }

@@ -1,5 +1,5 @@
 {
-  "name": "xlsx-comparator",
+  "name": "xlsx-merger",
   "version": "0.1.0",
   "description": "Парсер для xlsx",
   "main": "src/index.js",

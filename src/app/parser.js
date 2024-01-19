@@ -15,7 +15,18 @@ const parserXLSX = (file) => {
         workbook.SheetNames.forEach((sheetName) => {
           const sheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-          jsonDataArray.push(jsonData);
+
+          const headers = jsonData[0];
+
+          const sheetData = jsonData.slice(1).map((row) => {
+            const rowData = {};
+            headers.forEach((header, index) => {
+              rowData[header.trim().toLowerCase()] = row[index] !== undefined ? row[index] : null;
+            });
+            return rowData;
+          });
+
+          jsonDataArray.push(...sheetData);
         });
 
         resolve(jsonDataArray);
