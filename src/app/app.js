@@ -3,52 +3,42 @@ import watcher from './view.js';
 
 export default async () => {
   const state = {
-    uiState: {
-      tabs: null,
-      activeTab: null,
-    },
     dataState: {
-      firstTab: [],
-      secondTab: [],
+      firstData: [],
+      secondData: [],
+    },
+    uiState: {
+      menuКeys: [],
+      selectedKey: null,
     },
   };
 
   const inputFirst = document.querySelector('input[id="formFile_1"]');
   const inputSecond = document.querySelector('input[id="formFile_2"]');
   const parsButton = document.querySelector('button[id="parser"]');
-  const tads = document.querySelector('div[id="tabs"]');
+
   const watchedState = watcher(state);
 
   const handlerParsButton = async () => {
     console.log('------     handlerParsButton');
     try {
-      let data1;
-      let data2;
+      let data1 = state.dataState.firstData;
+      let data2 = state.dataState.secondData;
       if (inputFirst.files.length !== 0) {
-        data1 = await parserXLSX(inputFirst.files[0]);
-        watchedState.dataState.firstTab = data1;
+        data1 = { firstData: await parserXLSX(inputFirst.files[0]) };
       }
       if (inputSecond.files.length !== 0) {
-        data2 = await parserXLSX(inputSecond.files[0]);
-        watchedState.dataState.secondTab = data2;
+        data2 = { secondData: await parserXLSX(inputSecond.files[0]) };
       }
-      watchedState.uiState.tabs = 'enable';
+      watchedState.dataState = { ...data1, ...data2 };
+
+      const matchedKeys = state.dataState.secondData[0];
+      watchedState.uiState.menuКeys = matchedKeys;
+      console.log(matchedKeys);
     } catch (error) {
       console.error('Ошибка при обработке XLSX-файлов:', error.message);
     }
   };
 
-  const handlerTabClick = (event) => {
-    console.log('------     handlerTabClick');
-    const targetId = event.target.id;
-    const tag = event.target.tagName;
-    console.log(event.target);
-    console.log(tag, typeof tag, '/', targetId);
-    if (tag === 'A') {
-      watchedState.uiState.activeTab = targetId;
-    }
-  };
-
   parsButton.addEventListener('click', handlerParsButton);
-  tads.addEventListener('click', handlerTabClick);
 };

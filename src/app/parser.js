@@ -9,9 +9,16 @@ const parserXLSX = (file) => {
         const arrayBuffer = e.target.result;
         const data = new Uint8Array(arrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        resolve(jsonData);
+
+        const jsonDataArray = [];
+
+        workbook.SheetNames.forEach((sheetName) => {
+          const sheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          jsonDataArray.push(jsonData);
+        });
+
+        resolve(jsonDataArray);
       } catch (error) {
         console.error('Ошибка при чтении XLSX-файла:', error.message);
         reject(error);
@@ -21,6 +28,7 @@ const parserXLSX = (file) => {
     reader.onerror = () => {
       reject(new Error('Ошибка чтения файла'));
     };
+
     reader.readAsArrayBuffer(file.slice(0, file.size));
   });
 };
