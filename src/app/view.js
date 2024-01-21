@@ -14,6 +14,8 @@ const getMenu = (path, value) => {
   select.setAttribute('aria-label', 'Default', 'select', 'example');
 
   const firstOption = document.createElement('option');
+  firstOption.selected = true;
+
   if (path === 'uiState.кeysForComparison') {
     select.classList.add('firstMenu');
     select.setAttribute('data-menu', 'first');
@@ -24,9 +26,8 @@ const getMenu = (path, value) => {
     select.setAttribute('data-menu', 'second');
     firstOption.text = 'Выберите нужный ключ для добавления';
   }
-  firstOption.selected = true;
-  select.append(firstOption);
 
+  select.append(firstOption);
   value.forEach((key) => {
     const otherOption = document.createElement('option');
     otherOption.text = key;
@@ -42,7 +43,6 @@ const getButton = () => {
   div.id = 'button';
   div.innerHTML = `
   <button type="button" class="btn col col-md-4 ms-3 btn-outline-dark" id="merger">Объеденить выбранное</button>`;
-
   return div;
 };
 
@@ -71,11 +71,43 @@ const renderMenus = (path, value) => {
   containerMenu.append(containerRow);
 };
 
+const renderButtonSave = () => {
+  const div = document.querySelector('#saver');
+  div.innerHTML = `
+  <div class="row d-flex align-items-center justify-content-between">
+    <p class="feedback col col-auto mt-3 mb-3 align-middle text-success m-0small">
+      XLSX файл успешно сформирован
+    </p>
+    <button type="submit" class="btn col col-auto me-3 mt-3 mb-3 btn-outline-dark" id="save">Сохранить файл</button>
+  </div>`;
+};
+
+const renderButtonReset = () => {
+  const saveButtons = document.querySelector('#save');
+  if (saveButtons) saveButtons.parentElement.remove();
+
+  const div = document.querySelector('#restarter');
+  div.innerHTML = `
+  <div class="row d-flex align-items-center justify-content-between">
+    <p class="feedback col col-auto mt-3 mb-3 align-middle text-success m-0small">
+      XLSX файл успешно сохранён
+    </p>
+    <button type="submit" class="btn col col-auto me-3 mt-3 mb-3 btn-outline-dark" id="reset">Сбросить данные</button>
+  </div>`;
+};
+
 const render = () => (path, value) => {
+  console.log(path);
   switch (path) {
     case 'uiState.кeysForComparison':
     case 'uiState.кeysForAdding':
       renderMenus(path, value);
+      break;
+    case 'dataState.resultData':
+      renderButtonSave();
+      break;
+    case 'uiState.readiness':
+      renderButtonReset();
       break;
     default:
       break;

@@ -1,6 +1,25 @@
-import parserXLSX from './parser.js';
 import watcher from './view.js';
+import parserXLSX from './parser.js';
 import mergeData from './merger.js';
+import createXLSX from './creator.js';
+
+const resetData = () => {
+  const resetButtons = document.querySelector('#reset');
+  resetButtons.addEventListener('click', () => {
+    window.location.reload(true);
+  });
+};
+
+const saveData = (watchedState) => {
+  const { resultData } = watchedState.dataState;
+  const saveButtons = document.querySelector('#save');
+
+  saveButtons.addEventListener('click', async () => {
+    await createXLSX(resultData);
+    watchedState.uiState.readiness = true;
+    resetData();
+  });
+};
 
 const getMatchingKeys = (data1, data2) => {
   const keysData1 = data1.length > 0 ? Object.keys(data1[0]) : [];
@@ -30,6 +49,7 @@ const selectAndMerge = (watchedState) => {
     const { keyForComparison, keyForAdding } = watchedState.uiState;
     const resultData = mergeData(firstData, secondData, keyForComparison, keyForAdding);
     watchedState.dataState.resultData = resultData;
+    saveData(watchedState);
   };
 
   firstMenu.addEventListener('change', handlerMenu);
@@ -49,6 +69,7 @@ export default async () => {
       кeysForAdding: [],
       keyForComparison: null,
       keyForAdding: null,
+      readiness: false,
     },
   };
 

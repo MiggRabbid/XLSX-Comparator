@@ -1,6 +1,6 @@
 {
   "name": "xlsx-merger",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Парсер для xlsx",
   "main": "src/index.js",
   "type": "module",
